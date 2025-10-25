@@ -1,0 +1,9 @@
+streamlit>=1.33
+pandas
+numpy
+pydeck
+plotly
+geopandas
+pyarrow
+requests
+tqdm

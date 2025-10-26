@@ -2,11 +2,11 @@
 import streamlit as st
 
 def show_intro():
-    st.title('Tourisme de montagne — DATAtourisme')
+    st.title('Mountain tourism — DATAtourisme')
     st.markdown('''
-**Problématique** : Où se concentrent les offres touristiques en montagne (POI, activités, itinéraires), quelles zones sont sous‑dotées, et quelle est la saisonnalité des événements ?
+**Issue: Where are tourist offerings concentrated in mountain areas (POIs, activities, itineraries), which areas are underserved, and how seasonal are events?
 
-**Audience** : Offices de tourisme, collectivités locales, opérateurs d'activités outdoor.
+**Audience** : Tourist offices, local authorities, outdoor activity operators.
 
 **Sources** : DATAtourisme (data.gouv.fr)
 ''')

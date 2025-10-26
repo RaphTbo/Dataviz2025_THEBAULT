@@ -8,56 +8,47 @@ from sections.conclusions import show_conclusions
 
 def _month_to_season(m):
     if pd.isna(m):
-        return 'Inconnue'
+        return 'Unknow'
     m = int(m)
     if m in (12, 1, 2):
-        return 'Hiver'
+        return 'Winter'
     if m in (3, 4, 5):
-        return 'Printemps'
+        return 'Spring'
     if m in (6, 7, 8):
-        return 'Été'
-    return 'Automne'
+        return 'Summer'
+    return 'Automn'
 
 
 def show_story_mountain(df: pd.DataFrame):
-    """Storytelling section: tourisme en montagne par saison.
-
-    - Filtre heuristique pour POI/produits liés à la montagne
-    - Construction d'une colonne "season" à partir de la date
-    - Visualisations: distribution saisonnière, top types, top par saison, carte
-    """
-    st.header('Story — Tourisme en montagne par saison')
+    st.header('Mountain tourism by season')
 
     st.markdown(
         """
-        Ce chapitre explore la saisonnalité des offres touristiques en montagne.
-        Nous utilisons une heuristique pour isoler les objets liés à la montagne (nom, type, thème, description),
-        puis comparons les saisons sur la base de la date de mise à jour / publication.
+        This chapter explores the seasonality of tourism offerings in mountain areas.
+        We use heuristics to isolate objects related to mountains (name, type, theme, description),
+        then compare seasons based on the date of update/publication.
 
-        Questions traitées :
-        - Quelles offres sont principalement hivernales (ski, refuges) vs estivales (randonnée, sommets) ?
-        - Où (géographiquement) se concentrent ces offres selon la saison ?
-        - Quels types d'activités émergent comme prioritaires pour un office de tourisme selon la saison ?
+        Questions addressed:
+        - Which offerings are mainly winter-based (skiing, mountain huts) vs. summer-based (hiking, mountain peaks)?
+        - Where (geographically) are these offerings concentrated according to the season?
+        - What types of activities emerge as priorities for a tourist office according to the season?
         """
     )
 
     # Heuristic mountain filter
     m_df = filter_mountain(df)
     orig_count = len(m_df)
-    st.write(f"Objets détectés comme liés à la montagne : **{orig_count}**")
+    st.write(f"Events detected as related to mountains : **{orig_count}**")
 
     if orig_count == 0:
-        st.info("Aucun objet identifié comme 'montagne' — essayez d'élargir vos filtres ou vérifiez les données sources.")
+        st.info("No events identified as 'mountain'")
         return
 
-    # --- Apply region filter globally for the whole storytelling section ---
     allowed_regions = {'PAC', 'ARA', 'OCC'}
     m_df = m_df.copy()
-    # normalize region column when present
     m_df['region_norm'] = m_df.get('region', '').fillna('').astype(str).str.strip().str.upper()
     m_df_filtered = m_df[m_df['region_norm'].isin(allowed_regions)]
 
-    # fallback: try to infer region from department codes when region not present
     if m_df_filtered.empty and 'departement' in m_df.columns:
         import re
 
@@ -82,15 +73,13 @@ def show_story_mountain(df: pd.DataFrame):
         depts_allowed = set(sum([region_to_depts[r] for r in allowed_regions], []))
         m_df_filtered = m_df[m_df['dept_code'].isin(depts_allowed)]
 
-    st.write(f"Après filtrage par région (PAC/ARA/OCC) : **{len(m_df_filtered)}** (sur {orig_count})")
+    st.write(f"After filtering by region (PAC/ARA/OCC) : **{len(m_df_filtered)}** (sur {orig_count})")
     if len(m_df_filtered) == 0:
-        st.info("Aucun objet montagneux trouvé dans les régions PAC/ARA/OCC. Essayez d'élargir les filtres ou vérifiez les données.")
+        st.info("No mountainous events found in the PAC/ARA/OCC regions. Try widening the filters or checking the data.")
         return
 
-    # use the region-filtered DataFrame for all subsequent charts in this section
     m_df = m_df_filtered
 
-    # Ensure date_maj exists and is datetime
     if 'date_maj' in m_df.columns:
         m_df = m_df.copy()
         m_df['date_maj'] = pd.to_datetime(m_df['date_maj'], errors='coerce')
@@ -101,14 +90,13 @@ def show_story_mountain(df: pd.DataFrame):
         m_df['season'] = 'Inconnue'
 
     # Distribution saisonnière
-    season_order = ['Hiver', 'Printemps', 'Été', 'Automne', 'Inconnue']
-    # Palette couleur fixe pour les saisons — garantit la même couleur partout (Été = rouge)
+    season_order = ['Winter', 'Spring', 'Summer', 'Automn', 'Unknow']
     season_colors = {
-        'Hiver': '#4DA6FF',       # bleu clair
-        'Printemps': '#66BB6A',   # vert
-        'Été': '#E53935',         # rouge (toujours rouge)
-        'Automne': '#FFA726',     # orange
-        'Inconnue': '#9E9E9E'     # gris
+        'Winter': '#4DA6FF',       # bleu clair
+        'Spring': '#66BB6A',   # vert
+        'Summer': '#E53935',         # rouge
+        'Automn': '#FFA726',     # orange
+        'Unknow': '#9E9E9E'     # gris
     }
     se_counts = (
         m_df['season'].value_counts().reindex(season_order).fillna(0).reset_index()
@@ -121,50 +109,46 @@ def show_story_mountain(df: pd.DataFrame):
         y='count',
         color='saison',
         color_discrete_map=season_colors,
-        title='Distribution saisonnière des objets montagne',
+        title='Seasonal distribution of events',
         category_orders={"saison": season_order},
-        labels={'saison':'Saison', 'count':'Nombre d\'objets'}
+        labels={'saison':'Season', 'count':'Number of events'}
     )
-    fig_season.update_layout(showlegend=False, yaxis_title="Nombre d'objets")
+    fig_season.update_layout(showlegend=False, yaxis_title="Number of events")
     st.plotly_chart(fig_season, use_container_width=True)
 
-    # Top catégories (utilise la colonne `type_category` si disponible, sinon `type`)
+    # Top catégories 
     type_col = 'type_category' if 'type_category' in m_df.columns else ('type' if 'type' in m_df.columns else None)
     if type_col:
-        # counts and percentages overall
         overall = (
             m_df.groupby(type_col).size().reset_index(name='count').sort_values('count', ascending=False)
         )
         overall['pct'] = (overall['count'] / overall['count'].sum() * 100).round(1)
 
-        st.subheader("Statistiques par catégorie d'activité (montagne)")
-        # show top 10 as chart
+        st.subheader("Statistics by activity category (mountain)")
         top_overall = overall.head(10)
         if not top_overall.empty:
             top_n = int(top_overall.shape[0])
-            title_top = f"Top {top_n} des catégories d'activités en montagne"
+            title_top = f"Top {top_n} categories of mountain activities"
             fig_top = px.bar(
                 top_overall,
                 x='count',
                 y=type_col,
                 orientation='h',
                 title=title_top,
-                labels={'count':"Nombre d'objets", type_col:'Catégorie'}
+                labels={'count':"Number of events", type_col:'Catégorie'}
             )
             fig_top.update_layout(yaxis={'categoryorder':'total ascending'})
             st.plotly_chart(fig_top, use_container_width=True)
            
         # show small table with counts + pct
-        st.markdown('**Répartition globale par catégorie**')
-        st.table(overall.head(20).rename(columns={type_col:'Catégorie', 'count':'Nombre', 'pct':'Part (%)'}).reset_index(drop=True))
+        st.markdown('**Overall distribution by category**')
+        st.table(overall.head(20).rename(columns={type_col:'Category', 'count':'Number', 'pct':'Part (%)'}).reset_index(drop=True))
 
     # Top catégories par saison (top 5)
     if type_col and m_df['season'].nunique() > 1:
         grp = m_df.groupby(['season', type_col]).size().reset_index(name='count')
-        # keep top 5 categories per season
         top_season = grp.sort_values(['season', 'count'], ascending=[True, False]).groupby('season').head(5)
         if not top_season.empty:
-            # Add percent within season
             season_totals = m_df.groupby('season').size().rename('season_total')
             top_season = top_season.merge(season_totals, on='season')
             top_season['pct_within_season'] = (top_season['count'] / top_season['season_total'] * 100).round(1)
@@ -177,16 +161,15 @@ def show_story_mountain(df: pd.DataFrame):
                 color_discrete_map=season_colors,
                 facet_col='season',
                 orientation='h',
-                title='Top catégories par saison (top 5)',
-                labels={'count':"Nombre d'objets", type_col:'Catégorie', 'season':'Saison'}
+                title='Top categories by season (top 5)',
+                labels={'count':"Number of events", type_col:'Category', 'season':'Season'}
             )
             fig_top_season.update_layout(showlegend=False)
             st.plotly_chart(fig_top_season, use_container_width=True)
 
-    # Carte des POI montagneux colorée par saison (plotly mapbox open-street-map)
+    # Carte des POI montagneux colorée par saison 
     if {'latitude', 'longitude'}.issubset(m_df.columns) and m_df[['latitude', 'longitude']].dropna().shape[0] > 0:
-        st.subheader('Carte des POI montagneux (par saison)')
-        # m_df has already been filtered to PAC/ARA/OCC above; just drop rows without coords
+        st.subheader('Map of mountain POIs (by season)')
         m_map = m_df.dropna(subset=['latitude', 'longitude']).copy()
         try:
             fig_map = px.scatter_mapbox(
@@ -204,20 +187,16 @@ def show_story_mountain(df: pd.DataFrame):
             fig_map.update_traces(marker={'size':8}, selector=dict(mode='markers'))
             st.plotly_chart(fig_map, use_container_width=True)
         except Exception:
-            # Fallback to simple st.map if plotly map fails
             st.map(m_map[['latitude', 'longitude']].rename(columns={'latitude':'lat','longitude':'lon'}))
     else:
-        st.info("Pas assez de coordonnées géographiques pour afficher la carte des POI montagneux.")
+        st.info("Not enough geographic coordinates to display the map of mountain POIs.")
 
     st.markdown('''
-    Observations possibles :
-    - Les POI liés au ski et aux refuges apparaissent principalement en hiver ; les itinéraires et sommets en été.
-    - La cartographie par saison aide à prioriser les investissements saisonniers (ex. entretien des pistes vs signalétique randonnée).
+    Observations:
+    - POIs related to skiing and mountain huts mainly appear in winter; routes and peaks appear in summer.
+    - Seasonal mapping helps prioritize seasonal investments (e.g., trail maintenance vs. hiking signage).
 
-    Suggestions pour approfondir : enrichir les données avec la fréquentation (si disponible), la météo saisonnière ou les avis pour prioriser les actions.
+    This dataset tells us about the tourist offers that have been posted. It does not tell us about the flow of tourism.
     ''')
-    # Append the global conclusions at the end of the storytelling section
     st.markdown('---')
-    # Show conclusions based on the mountain POI subset (and region-filtered) so conclusions
-    # reflect 'tourisme à la montagne' dans PAC/ARA/OCC as requested by the user.
     show_conclusions(m_df)

@@ -2,14 +2,13 @@
 import streamlit as st
 
 def show_conclusions(df):
-    st.header('Conclusions & prochaines étapes')
-    # Single extended paragraph summarizing findings, limits and recommendations
+    st.header('Conclusions')
     st.markdown(
         (
-            "Ce travail montre que, dans les régions Provence‑Alpes‑Côte d'Azur (PAC), Auvergne‑Rhône‑Alpes (ARA) et Occitanie (OCC), "
-            "les offres liées à la montagne se concentrent principalement autour des activités de randonnée, des refuges et des structures d'hébergement saisonnier, avec une saisonnalité nette entre les mois d'hiver (ski, refuges) et l'été (itinéraires, sommets). "
-            "Toutefois, ces conclusions doivent être interprétées avec prudence : les données DATAtourisme fournissent des informations descriptives et locales mais manquent souvent de métriques de fréquentation et présentent une couverture hétérogène selon les offices et diffuseurs, ce qui peut biaiser la représentativité spatiale et thématique. "
-            "En pratique, pour prioriser des actions opérationnelles, il est recommandé d'enrichir ce jeu de données par des indicateurs de fréquentation (capacité d'hébergement remplie, comptages, réservations) et, si possible, de croiser avec des données météorologiques et d'accessibilité routière pour anticiper les besoins saisonniers. "
-            "Enfin, à court terme, les offices de tourisme pourraient utiliser ces résultats pour concentrer les efforts de signalétique et d'entretien (pistes, sentiers) selon la saisonnalité identifiée, et à moyen terme lancer des enquêtes ciblées auprès des prestataires pour combler les manques d'information et affiner les priorités d'investissement."
+            "This study shows that in the Provence-Alpes-Côte d'Azur (PAC), Auvergne-Rhône-Alpes (ARA), and Occitanie (OCC) regions,"
+            "mountain-related offerings are mainly concentrated around hiking activities, mountain huts, and seasonal accommodation facilities, with a clear seasonal pattern between the winter months (skiing, mountain huts) and summer (trails, peaks). "
+            "However, these conclusions should be interpreted with caution: DATAtourisme data provides descriptive and local information but often lacks attendance metrics and has uneven coverage depending on the offices and distributors, which may bias spatial and thematic representativeness. "
+            "In practice, in order to prioritize operational actions, it is recommended to enrich this dataset with attendance indicators (accommodation capacity filled, counts, reservations) and, if possible, to cross-reference it with meteorological and road accessibility data to anticipate seasonal needs. "
+            "Finally, in the short term, tourist offices could use these results to focus signage and maintenance efforts (trails, paths) according to identified seasonality, and in the medium term, launch targeted surveys of service providers to fill information gaps and refine investment priorities."
         )
     )

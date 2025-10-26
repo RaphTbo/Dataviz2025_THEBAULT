@@ -52,26 +52,4 @@ Un dashboard destiné aux acteurs du tourisme (OT, collectivités, office de gui
    streamlit run app.py
    ```
 
-   ## Notes on caching
-
-   - On first run the app may take longer since it reads all CSVs and writes `data/cleaned.parquet`.
-   - To force a rebuild from CSVs, open the sidebar and click **Rebuild cache (rebuild cleaned.parquet)**.
-
-   ## Deliverables checklist
-
-   - Streamlit app (`app.py` + `sections/`, `utils/`)
-   - Dataset (CSV files are included in `data/`)
-   - README (this file)
-   - Short demo video (include separately when packaging)
-
-   ## Course alignment
-
-   - Sidebar controls, KPIs, time series, bar chart and map are present.
-   - Data quality checks included.
-   - Performance: caching and map controls (heatmap/hexagon/scatter with sampling) reduce payload.
-
-   If you want, I can:
-   - Add a short `Makefile` or PowerShell script to automate setup.
-   - Add unit tests for `utils/io.py` and `utils/prep.py`.
-   - Implement server-side clustering (centroids) for scatter points instead of sampling.
 
